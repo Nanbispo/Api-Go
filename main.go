@@ -30,6 +30,28 @@ func postAlbuns (c *gin.Context){
 	c.IndentedJSON(http.StatusCreated, newAlbun)
 }
 
+func updateAlbuns (c *gin.Context){
+	id := c.Param ("id")
+
+	var updateAlbum album
+
+	if err := c.BindJSON(&updateAlbum); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "body inválido"})
+        return
+	}
+
+	for i, a := range albuns {
+		if a.Id == id {
+			albuns[i] = updateAlbum
+			albuns[i].Id = id
+			c.IndentedJSON(http.StatusOK, albuns[i])
+			return
+		}
+	}
+	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "album não encontrado"})
+}
+
+
 func getAlbuns(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, albuns)
 }
@@ -47,12 +69,15 @@ func getAlbunsById (c *gin.Context){
 	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "album nao funciona"})
 }
 
+
+
+
 func main (){
 	router := gin.Default()
 	router.GET("/albuns", getAlbuns)
 	router.GET("/albuns/:id", getAlbunsById)
-	router.POST("albuns", postAlbuns)
+	router.POST("/albuns", postAlbuns)
+	router.PUT("/albuns/:id", updateAlbuns)
 
-
-	router.Run("localhost:3000")
+	router.Run("localhost:8080")
 }
